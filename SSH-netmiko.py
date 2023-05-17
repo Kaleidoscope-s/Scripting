@@ -77,7 +77,7 @@ def mode2():
 
 # User menu     
 while True:
-    print("~Options~")
+    print("~ Options ~")
     print("1. Create an SSH connection.")
     print("2. Create a user at a destination.")
     print("3. Exit")
