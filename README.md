@@ -1,6 +1,6 @@
 # Scripts
 
-# Table of Contents
+## Table of Contents
 
 | Filename | Description |
 | --- | --- |
